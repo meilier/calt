@@ -32,8 +32,7 @@ typedef struct
 } CInstance;
 
 void getConn();
-void getConnFile();
-void fileProcess(int transType, int certType, int conn, int filefd);
+void fileProcess(int transType, int certType, int conn);
 void receiveProcess();
 void handleRqProcess();
 void handleHqProcess();
@@ -48,7 +47,6 @@ struct sockaddr_in servaddr;
 struct sockaddr_in fileaddr;
 socklen_t len;
 socklen_t filelen;
-
 
 //debug
 int temp_count = 0;
@@ -69,9 +67,6 @@ ConcurrentQueue<CInstance> sq;
 
 //handle message queue
 ConcurrentQueue<CInstance> hq;
-
-//file transfer queue
-ConcurrentQueue<CInstance> fq;
 
 // ctrl + c interupt
 static volatile int keepRunning = 1;
@@ -113,70 +108,6 @@ void getConn()
         //     cv.wait(lock);
         // }
         //printf("still loop\n");
-    }
-}
-
-void getConnFile()
-{
-    while (1)
-    {
-        int connfd = 0;
-        int conn = 0;
-        int byteNum;
-        char buff[MAXLINE];
-        CInstance fqmessage;
-        //fqmessage.conn = conn;
-        printf("fileProcess: start file transfer listening at 7001\n");
-        if ((connfd = accept(fileSock, (struct sockaddr *)&fileaddr, &filelen)) == -1)
-        {
-            printf("accept socket error: %s(errno: %d)", strerror(errno), errno);
-        }
-        //printf("fileProcess: get file connection from client, my conn is %d connfd is %d\n", connfd);
-        fq.Pop(fqmessage);
-        //according to fqmessage , decide which fileprocess will be used
-        if (fqmessage.message == SA)
-        {
-            //if single port tell main process to transport file
-            //main process ready to receive csr file
-            std::thread t4(fileProcess, 0, 0, fqmessage.conn, connfd);
-            t4.detach();
-            //send sign-ok message
-        }
-        else if (fqmessage.message == ST)
-        {
-            //receive tls crs file
-            std::thread t4(fileProcess, 0, 1, fqmessage.conn, connfd);
-            t4.detach();
-        }
-        else if (fqmessage.message == GC)
-        {
-            //send certs.tar.gz to client
-            mCert->getAllCerts();
-            std::thread t4(fileProcess, 1, 2, fqmessage.conn, connfd);
-            t4.detach();
-        }
-        else if (fqmessage.message == GRL)
-        {
-            //send crl to client
-            std::thread t4(fileProcess, 1, 3, fqmessage.conn, connfd);
-            t4.detach();
-        }
-        else if (fqmessage.message == GACO)
-        {
-            //sign account certificate
-            std::thread t4(fileProcess, 1, 0, fqmessage.conn, connfd);
-            t4.detach();
-        }
-        else if (fqmessage.message == GTCO)
-        {
-            //sign tls certificate
-            std::thread t4(fileProcess, 1, 1, fqmessage.conn, connfd);
-            t4.detach();
-        }
-        else
-        {
-            printf("wrong message");
-        }
     }
 }
 
@@ -318,13 +249,13 @@ void handleRqProcess()
         CInstance rpmessage;
         CInstance sqmessage;
         rq.Pop(rpmessage);
-        //add to file queue
-        fq.Push(rpmessage);
         sqmessage.conn = rpmessage.conn;
         if (rpmessage.message == SA)
         {
             //if single port tell main process to transport file
             //main process ready to receive csr file
+            std::thread t4(fileProcess, 0, 0, rpmessage.conn);
+            t4.detach();
             printf("handleProcess:why can not be here\n");
             sqmessage.message = SAR;
             sq.Push(sqmessage);
@@ -334,6 +265,8 @@ void handleRqProcess()
         else if (rpmessage.message == ST)
         {
             //receive tls crs file
+            std::thread t4(fileProcess, 0, 1, rpmessage.conn);
+            t4.detach();
             sqmessage.message = STR;
             sq.Push(sqmessage);
         }
@@ -341,12 +274,16 @@ void handleRqProcess()
         {
             //send certs.tar.gz to client
             mCert->getAllCerts();
+            std::thread t4(fileProcess, 1, 2, rpmessage.conn);
+            t4.detach();
             sqmessage.message = GCR;
             sq.Push(sqmessage);
         }
         else if (rpmessage.message == GRL)
         {
             //send crl to client
+            std::thread t4(fileProcess, 1, 3, rpmessage.conn);
+            t4.detach();
             sqmessage.message = GRLR;
             sq.Push(sqmessage);
         }
@@ -374,12 +311,13 @@ void handleHqProcess()
         CInstance hqmessage;
         CInstance sqmessage;
         hq.Pop(hqmessage);
-        fq.Push(hqmessage);
         sqmessage.conn = hqmessage.conn;
         if (hqmessage.message == GACO)
         {
             //sign account certificate
             mCert->signCert(sqmessage.conn, "account");
+            std::thread t4(fileProcess, 1, 0, hqmessage.conn);
+            t4.detach();
             sqmessage.message = SAO;
             sq.Push(sqmessage);
         }
@@ -387,6 +325,8 @@ void handleHqProcess()
         {
             //sign tls certificate
             mCert->signCert(sqmessage.conn, "tls");
+            std::thread t4(fileProcess, 1, 1, hqmessage.conn);
+            t4.detach();
             sqmessage.message = STO;
             sq.Push(sqmessage);
         }
@@ -397,7 +337,7 @@ void handleHqProcess()
  * transType: 0 get file from client . certType: 0 get account csr, 1 get tls csr
  * transType: 1 send file to client. certType: 1 send file to client, 0 send account pem, 1 send tls pem , 2 send certs.tar.gz to client, 3 send crl file to client
  * */
-void fileProcess(int transType, int certType, int conn, int filefd)
+void fileProcess(int transType, int certType, int conn)
 {
     temp_count = 0;
     printf("======waiting for client's request======\n");
@@ -406,12 +346,18 @@ void fileProcess(int transType, int certType, int conn, int filefd)
         //get from client
         while (1)
         {
+            int connfd = 0;
             int byteNum;
             char buff[MAXLINE];
             CInstance hqmessage;
             hqmessage.conn = conn;
-            //printf("fileProcess: start file transfer listening at 7001\n");
-            printf("fileProcess: get file connection from client, my conn is %d connfd is %d\n", conn, filefd);
+            printf("fileProcess: start file transfer listening at 7001\n");
+            if ((connfd = accept(fileSock, (struct sockaddr *)&fileaddr, &filelen)) == -1)
+            {
+                printf("accept socket error: %s(errno: %d)", strerror(errno), errno);
+                continue;
+            }
+            printf("fileProcess: get file connection from client, my conn is %d connfd is %d\n" ,conn,connfd);
             //write file
             std::ofstream csrfile;
             if (certType == 0)
@@ -426,33 +372,33 @@ void fileProcess(int transType, int certType, int conn, int filefd)
             while (1)
             {
                 printf("xingweizheng zaici2\n");
-                byteNum = read(filefd, buff, MAXLINE);
-                if (byteNum < 0)
+                byteNum = read(connfd, buff, MAXLINE);
+                if(byteNum < 0)
                 {
-                    printf("error happens conn %d connfd %d errno", conn, filefd, errno);
+                    printf("error happens conn %d connfd %d errno",conn,connfd,errno);
                 }
                 printf("fileProcess: why thead not return %d\n", byteNum);
                 if (byteNum == 0)
                 {
-                    close(filefd);
+                    close(connfd);
                     csrfile.close();
-
+                    
                     //send file get ok message to handle process
                     if (certType == 0)
                     {
                         hqmessage.message = GACO;
                         gacot++;
                         hq.Push(hqmessage);
-                        printf("gacot is %d\n", gacot);
-                        printf("orgname is ", mCert->getCertOrgName(conn, 0).c_str());
+                        printf("gacot is %d\n",gacot);
+                        printf("orgname is ",mCert->getCertOrgName(conn,0).c_str());
                     }
                     else
                     {
                         hqmessage.message = GTCO;
                         gtcot++;
                         hq.Push(hqmessage);
-                        printf("gtcot is %d\n", gtcot);
-                        printf("orgname is ", mCert->getCertOrgName(conn, 1).c_str(), "orgname is \n");
+                        printf("gtcot is %d\n",gtcot);
+                        printf("orgname is \n",mCert->getCertOrgName(conn,1).c_str());
                     }
                     printf("should be ready to return\n");
                     return;
@@ -466,9 +412,23 @@ void fileProcess(int transType, int certType, int conn, int filefd)
         //send to client
         while (1)
         {
+            int connfd = 0;
             int byteNum;
             char buff[4096];
             int readLen = 0;
+            try
+            {
+                if ((connfd = accept(fileSock, (struct sockaddr *)&fileaddr, &filelen)) == -1)
+                {
+                    printf("accept socket error: %s(errno: %d)", strerror(errno), errno);
+                    continue;
+                }
+            }
+            catch (exception e)
+            {
+                cout << "execption aaaaa !!!!!" << endl;
+                cout << e.what() << endl;
+            }
             //open file
             ifstream sfile;
             if (certType == 0)
@@ -497,17 +457,17 @@ void fileProcess(int transType, int certType, int conn, int filefd)
                 sfile.read(buff, sizeof(buff));
                 //printf("buff is %s\n",buff);
                 readLen = sfile.gcount();
-                send(filefd, buff, readLen, 0);
+                send(connfd, buff, readLen, 0);
                 //printf("fileProcess:here1\n");
                 temp_count++;
-                if (temp_count > 100 && certType == 2)
-                {
+                if(temp_count > 100 && certType == 2) {
                     printf("The temp_count > 1000, break\n");
                     break;
                 }
+
             }
             printf("fileProcess:here2\n");
-            close(filefd);
+            close(connfd);
             sfile.close();
             //sq.Push("SPO");
             //send file get ok message to handle process
@@ -619,9 +579,6 @@ int main()
     //thread : getconnection from client
     std::thread t(getConn);
     t.detach();
-    //thread : getconnection from client
-    std::thread t0(getConnFile);
-    t0.detach();
     printf("start get\n");
     //thread : send
     std::thread t1(sendProcess);
