@@ -1,0 +1,214 @@
+xingweizhengdeMacBook-Pro:pca xingweizheng$ ./server
+Init CA Server
+WORKDIR is /Users/xingweizheng/github/pca
+waiting for client
+start get
+start message listening thread at 7000
+start receive thread
+start handle handle queue thread
+start handle receive queue thread
+start send thread
+receiveProcess: wait client to send message
+/Users/xingweizheng/github/pca/Scripts
+haha is /Users/xingweizheng/github/pca
+enable config ? 1
+set up directoty ok
+Generating RSA private key, 2048 bit long modulus
+...................+++
+...........+++
+e is 65537 (0x10001)
+generate ca file ok
+done everything
+receiveProcess: wait client to send message
+receiveProcess: wait client to send message
+ 6
+getConn: the connect fd is 6
+waiting for client
+start message listening thread at 7000
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: mCInstance conn is 6
+reveiceProcess: the message is #sign-tls
+Looking for the '#' character in "#sign-tls"...
+found at 0
+#sign-tls
+#sign-tls
+rbuf is fule #sign-tls
+start to sign tls cert
+======waiting for client's request======
+fileProcess: start file transfer listening at 7001
+sendProcess: conn is 6 get message #sign-tls-ready
+fileProcess: get file connection from client
+Cert::getCertFileName : returnmsg is /Users/xingweizheng/testrsa/requests/tls/tlsCert1.csr
+fileProcess: why thead not return 972
+fileProcess: why thead not return 0
+should be ready to return
+start to sign cert
+Cert::getCertFileName : returnmsg is /Users/xingweizheng/testrsa/requests/tls/tlsCert1.csr
+Cert::getCertFileName : returnmsg is /Users/xingweizheng/testrsa/certs/tls/tlsCert1.pem
+this command is openssl ca -config /Users/xingweizheng/testrsa/openssl.cnf -in /Users/xingweizheng/testrsa/requests/tls/tlsCert1.csr -out /Users/xingweizheng/testrsa/certs/tls/tlsCert1.pem -batch -key 123456
+sign cert ok
+======waiting for client's request======
+sendProcess: conn is 6 get message #sign-tls-ok
+Using configuration from /Users/xingweizheng/testrsa/openssl.cnf
+Check that the request matches the signature
+Signature ok
+Certificate Details:
+        Serial Number: 0 (0x0)
+        Validity
+            Not Before: Jan 18 09:57:54 2019 GMT
+            Not After : Jan 15 09:57:54 2029 GMT
+        Subject:
+            countryName               = CN
+            stateOrProvinceName       = ZHEJIANG
+            organizationName          = ZJU
+            organizationalUnitName    = ZJUCSCA
+            commonName                = TLS1
+Certificate is to be certified until Jan 15 09:57:54 2029 GMT (3650 days)
+
+Write out database with 1 new entries
+Data Base Updated
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+Cert::getCertFileName : returnmsg is /Users/xingweizheng/testrsa/certs/tls/tlsCert1.pem
+fileProcess:ready to send pem file
+fileProcess:here1
+fileProcess:here2
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: mCInstance conn is 6
+reveiceProcess: the message is #sign-account
+Looking for the '#' character in "#sign-account"...
+found at 0
+#sign-account
+#sign-account
+start to sign account cert
+handleProcess:why can not be here
+======waiting for client's request======
+fileProcess: start file transfer listening at 7001
+sendProcess: conn is 6 get message #sign-account-ready
+sendProcess:whyaaaaaaaa #sign-account-ready  1  8 11 11
+fileProcess: get file connection from client
+Cert::getCertFileName : returnmsg is /Users/xingweizheng/testrsa/requests/account/accountCert1.csr
+fileProcess: why thead not return 976
+fileProcess: why thead not return 0
+should be ready to return
+start to sign cert
+Cert::getCertFileName : returnmsg is /Users/xingweizheng/testrsa/requests/account/accountCert1.csr
+Cert::getCertFileName : returnmsg is /Users/xingweizheng/testrsa/certs/account/accountCert1.pem
+this command is openssl ca -config /Users/xingweizheng/testrsa/openssl.cnf -in /Users/xingweizheng/testrsa/requests/account/accountCert1.csr -out /Users/xingweizheng/testrsa/certs/account/accountCert1.pem -batch -key 123456
+sign cert ok
+======waiting for client's request======
+sendProcess: conn is 6 get message #sign-account-ok
+Using configuration from /Users/xingweizheng/testrsa/openssl.cnf
+Check that the request matches the signature
+Signature ok
+Certificate Details:
+        Serial Number: 1 (0x1)
+        Validity
+            Not Before: Jan 18 09:57:59 2019 GMT
+            Not After : Jan 15 09:57:59 2029 GMT
+        Subject:
+            countryName               = CN
+            stateOrProvinceName       = ZHEJIANG
+            organizationName          = ZJU
+            organizationalUnitName    = ZJUCSCA
+            commonName                = ACCOUNT1
+Certificate is to be certified until Jan 15 09:57:59 2029 GMT (3650 days)
+
+Write out database with 1 new entries
+Data Base Updated
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+Cert::getCertFileName : returnmsg is /Users/xingweizheng/testrsa/certs/account/accountCert1.pem
+fileProcess:ready to send pem file
+fileProcess:here1
+fileProcess:here2
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+receiveProcess: wait client to send message
+receiveProcess: into for loop
+^CTerminated by Ctrl+C signal.
+Clear CA Server
+
+
+
+.
+├── certs
+│   ├── account
+│   │   └── accountCert1.pem
+│   └── tls
+│       └── tlsCert1.pem
+├── crl
+│   └── invoke.crl
+├── index.txt
+├── index.txt.attr
+├── index.txt.attr.old
+├── index.txt.old
+├── newcerts
+│   ├── 00.pem
+│   └── 01.pem
+├── openssl.cnf
+├── private
+│   ├── cacert.pem
+│   └── cakey.pem
+├── requests
+│   ├── account
+│   │   └── accountCert1.csr
+│   └── tls
+│       └── tlsCert1.csr
+├── serial
+└── serial.old
+
+
+.
+├── certs
+│   ├── account
+│   │   └── accountCert1.pem
+│   └── tls
+│       └── tlsCert1.pem
+├── crl
+│   └── invoke.crl
+├── index.txt
+├── index.txt.attr
+├── index.txt.old
+├── newcerts
+│   └── 00.pem
+├── openssl.cnf
+├── private
+│   ├── cacert.pem
+│   └── cakey.pem
+├── requests
+│   ├── account
+│   │   └── accountCert1.csr
+│   └── tls
+│       └── tlsCert1.csr
+└── serial

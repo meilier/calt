@@ -1,0 +1,78 @@
+version: '2'
+
+networks: 
+  hangtian:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.80.0/24
+          gateway: 192.168.80.1
+services:
+
+  master.arclab.zju.edu.cn:
+    build:
+      context: ./
+      dockerfile: Dockerfile2
+    # image: hangtian:base
+    container_name: master.arclab.zju.edu.cn
+    #ports:
+    #  - "7000:7000"
+    #  - "7001:7001"
+    environment:
+      NODENAME: master
+      ACCOUNTNAME: ACCOUNT1
+      TLSNAME: TLS1
+    networks: 
+      #- hangtian
+      hangtian:
+        ipv4_address: 192.168.80.160
+    command: bash -c "/calt/pca/server & \
+             sleep 30 ; /calt/build/master 20001 master"
+    # ./master <hosting port> <hosting name>
+
+
+  client1.arclab.zju.edu.cn:
+    build:
+      context: ./
+      dockerfile: Dockerfile2
+    #  image: hangtian:base
+    container_name: client1.arclab.zju.edu.cn
+    environment:
+      NODENAME: client1
+      ACCOUNTNAME: ACCOUNT2
+      TLSNAME: TLS2
+    networks: 
+      - hangtian
+    command: bash -c "sleep 30 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client1"
+    # ./client <hosting port> <target container_name> <target port> <hosting name>
+
+  client2.arclab.zju.edu.cn:
+    build:
+      context: ./
+      dockerfile: Dockerfile2
+    #  image: hangtian:base
+    container_name: client2.arclab.zju.edu.cn
+    environment:
+      NODENAME: client2
+      ACCOUNTNAME: ACCOUNT3
+      TLSNAME: TLS3
+    networks: 
+      - hangtian
+    command: bash -c "sleep 30 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client2"    
+    # ./client <hosting port> <target container_name> <target port> <hosting name>
+
+  client3.arclab.zju.edu.cn:
+    build:
+      context: ./
+      dockerfile: Dockerfile2
+    #  image: hangtian:base
+    container_name: client3.arclab.zju.edu.cn
+    environment:
+      NODENAME: client3
+      ACCOUNTNAME: ACCOUNT4
+      TLSNAME: TLS4
+    networks: 
+      - hangtian
+    command: bash -c "sleep 30 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client3"
+    # ./client <hosting port> <target container_name> <target port> <hosting name>
+    

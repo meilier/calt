@@ -1,0 +1,7 @@
+FROM hangtian:base
+RUN rm -rf /calt
+COPY ./ /calt
+COPY pca/ /pca
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh \
+    && cd /calt/pca && make clean && make \
+    && cd /calt && mkdir build && cd build && cmake .. && make

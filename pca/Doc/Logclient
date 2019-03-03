@@ -1,0 +1,102 @@
+xingweizhengdeMacBook-Pro:pca xingweizheng$ ./client
+Init CA Server
+WORKDIR is /Users/xingweizheng/github/pca
+ready to connect to server
+connect to server successfully
+start sendProcess thread
+start receive Process thread
+start handleProcess thread
+?????why not here
+/Users/xingweizheng/github/pca/Scripts
+haha is /Users/xingweizheng/github/pca
+enable config ? 1
+set directory done
+Generating RSA private key, 2048 bit long modulus
+......................+++
+.................+++
+e is 65537 (0x10001)
+Generating RSA private key, 2048 bit long modulus
+...............+++
+....................................................................................+++
+e is 65537 (0x10001)
+generate client account and tls key done
+generate client csr files done
+客户端没有任何输入信息，并且服务器也没有信息到来，waiting...
+客户端没有任何输入信息，并且服务器也没有信息到来，waiting...
+sendProcess: send message is #sign-tls
+客户端没有任何输入信息，并且服务器也没有信息到来，waiting...
+receiveProcess: receive len is 15
+reveiveProcess get message is #sign-tls-ready
+Looking for the '#' character in "#sign-tls-ready"...
+found at 0
+#sign-tls-ready
+#sign-tls-ready
+Get message from rq is #sign-tls-ready
+start fileProcess thread
+?????why not here
+ClientCert::getCertFileName : returnmsg is /Users/xingweizheng/client/requests/tls/tls.csr
+fileProcess: send csr successfully
+receiveProcess: receive len is 12
+reveiveProcess get message is #sign-tls-ok
+Looking for the '#' character in "#sign-tls-ok"...
+found at 0
+#sign-tls-ok
+#sign-tls-ok
+Sign tls ok here
+noSign tls ok here?
+Get message from rq is #sign-tls-ok
+?????why not here
+start fileProcess thread
+ClientCert::getCertFileName : returnmsg is /Users/xingweizheng/client/certs/tls/tls.pem
+fileProcess:ready to get pem file
+fileProcess:ready to get pem file
+fileProcess:here1
+fileProcess:here2
+客户端没有任何输入信息，并且服务器也没有信息到来，waiting...
+sendProcess: send message is #sign-account
+receiveProcess: receive len is 19
+reveiveProcess get message is #sign-account-ready
+Looking for the '#' character in "#sign-account-ready"...
+found at 0
+#sign-account-ready
+#sign-account-ready
+Get message from rq is #sign-account-ready
+start fileProcess thread
+?????why not here
+ClientCert::getCertFileName : returnmsg is /Users/xingweizheng/client/requests/account/account.csr
+fileProcess: send csr successfully
+receiveProcess: receive len is 16
+reveiveProcess get message is #sign-account-ok
+Looking for the '#' character in "#sign-account-ok"...
+found at 0
+#sign-account-ok
+#sign-account-ok
+Get message from rq is #sign-account-ok
+?????why not here
+start fileProcess thread
+ClientCert::getCertFileName : returnmsg is /Users/xingweizheng/client/certs/account/account.pem
+fileProcess:ready to get pem file
+fileProcess:ready to get pem file
+fileProcess:here1
+fileProcess:here2
+客户端没有任何输入信息，并且服务器也没有信息到来，waiting...
+客户端没有任何输入信息，并且服务器也没有信息到来，waiting...
+客户端没有任何输入信息，并且服务器也没有信息到来，waiting...
+receiveProcess: receive len is 0
+reveiveProcess get message is
+Looking for the '#' character in ""...
+
+
+receiveProcess: receive len is 0
+reveiveProcess get message is
+Looking for the '#' character in ""...
+
+
+receiveProcess: receive len is 0
+reveiveProcess get message is
+Looking for the '#' character in ""...
+
+
+receiveProcess: receive len is 0
+reveiveProcess get message is
+Looking for the '#' character in ""...
