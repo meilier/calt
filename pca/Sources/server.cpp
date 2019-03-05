@@ -31,7 +31,7 @@ typedef struct
 } CInstance;
 
 void getConn();
-void getConnFile(int port);
+void getConnFile(int conn, int port);
 void fileProcess(int transType, int certType, int conn, int filefd);
 void receiveProcess();
 void handleRqProcess();
@@ -105,7 +105,7 @@ void getConn()
         ci.conn = conn;
         ci.message = "#PORT" + to_string(Current_Port);
         sq.Push(ci);
-        std::thread t0(getConnFile, Current_Port);
+        std::thread t0(getConnFile, conn, Current_Port);
         t0.detach();
         Current_Port++;
         for (list<int>::iterator it = li.begin(); it != li.end(); ++it)
@@ -125,10 +125,9 @@ void getConn()
     }
 }
 
-void getConnFile(int port)
+void getConnFile(int conn ,int port)
 {
     int connfd = 0;
-    int conn = 0;
     socklen_t filelen;
     int byteNum;
     int fileSock;
@@ -163,7 +162,20 @@ void getConnFile(int port)
 
         
         //printf("fileProcess: get file connection from client, my conn is %d connfd is %d\n", connfd);
+        while(1)
+        {
+            fq.front(fqmessage);
+            if(fqmessage.conn == conn)
+                break;
+            else
+            {
+                usleep(500000);
+            }
+            printf("conn is %d,fqfront is %d , %s",conn,fqmessage.conn,fqmessage.message.c_str());
+            
+        }
         fq.Pop(fqmessage);
+        printf("fqmessage is %s\n",fqmessage.message.c_str());
         //according to fqmessage , decide which fileprocess will be used
         if (fqmessage.message == SA)
         {
@@ -208,7 +220,7 @@ void getConnFile(int port)
         }
         else
         {
-            printf("wrong message");
+            printf("getConnFile:wrong message");
         }
     }
 }
