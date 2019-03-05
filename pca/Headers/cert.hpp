@@ -8,7 +8,6 @@ private:
   //void operator=(Cert const &);
   ~Cert();
   int serial;
-  map<int, int> CertSerial;
   //root path
   const string CAPATH = "/testrsa/";
   const string caCert = CAPATH;
@@ -31,6 +30,7 @@ private:
   const string tlsCert = "tlsCert";
 
 public:
+  map<int, int> CertSerial;
   Cert(Cert const &) = delete;
   void operator=(Cert const &) = delete;
   static Cert &getInstance()

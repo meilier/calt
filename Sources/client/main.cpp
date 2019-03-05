@@ -44,16 +44,16 @@ int main(int argc, char* argv[]) {
     enqueueSA();    //ACCOUNT证书生成
     //sleep(15);
     //enqueueGC();    //向CA请求获得
-    sleep(10);
+    sleep(12);
     closesocket();
     
-    cout << "(1) " << nodeName << " setup CAClient Successful" << endl;
-    stage.Calc_Or(0x0001);
+    // cout << "(1) " << nodeName << " setup CAClient Successful" << endl;
+    // stage.Calc_Or(0x0001);
     
-    while((stage.Get() & 0x0001) != 0x0001) {
-        cout << "The Certificates is not ready, Waiting..." << endl;
-        sleep(1);
-    }
+    // while((stage.Get() & 0x0001) != 0x0001) {
+    //     cout << "The Certificates is not ready, Waiting..." << endl;
+    //     sleep(1);
+    // }
 
     while (true) {}
 

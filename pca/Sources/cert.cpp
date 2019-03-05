@@ -215,5 +215,5 @@ Cert::~Cert()
     //call setup.sh
     string signCmd = "sh " + string(WORKDIR) + "/Scripts/clear.sh";
     //Todo: error handling
-    popen(signCmd.c_str(), "w");
+    //popen(signCmd.c_str(), "w");
 }

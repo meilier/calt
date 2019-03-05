@@ -20,11 +20,11 @@
 #include "client.hpp"
 
 #define MYPORT 7000
-#define FILEPORT 7001
 #define BUFFER_SIZE 1024
 
 
 int sock_cli;
+int file_port;
 fd_set rfds;
 struct timeval tv;
 int retval, maxfd;
@@ -141,6 +141,10 @@ void receiveProcess()
                     //get certs ready message from server
                     //connect to server to get it's certs.tar.gz
                     rq.Push(GRLR);
+                }else if (string(*it).substr(0,5) == "#PORT")
+                {
+                    file_port = atoi(string(*it).substr(5,4).c_str());
+                    printf("client-port is %d",file_port);
                 }
             }
             memset(recvbuf, 0, sizeof(recvbuf));
@@ -233,7 +237,7 @@ void fileProcess(int transType, int certType)
     struct sockaddr_in fileaddr;
     memset(&fileaddr, 0, sizeof(fileaddr));
     fileaddr.sin_family = AF_INET;
-    fileaddr.sin_port = htons(FILEPORT);               ///服务器端口
+    fileaddr.sin_port = htons(file_port);               ///服务器端口
     fileaddr.sin_addr.s_addr = inet_addr("192.168.80.160"); ///服务器ip
 
     //connect to server，0 success，-1 failed

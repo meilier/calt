@@ -27,7 +27,7 @@ services:
       hangtian:
         ipv4_address: 192.168.80.160
     command: bash -c "/calt/pca/server & \
-             sleep 30 ; /calt/build/master 20001 master"
+             sleep 10 ; /calt/build/master 20001 master"
     # ./master <hosting port> <hosting name>
 
 
@@ -43,7 +43,7 @@ services:
       TLSNAME: TLS2
     networks: 
       - hangtian
-    command: bash -c "sleep 30 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client1"
+    command: bash -c "sleep 10 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client1"
     # ./client <hosting port> <target container_name> <target port> <hosting name>
 
   client2.arclab.zju.edu.cn:
@@ -58,7 +58,7 @@ services:
       TLSNAME: TLS3
     networks: 
       - hangtian
-    command: bash -c "sleep 30 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client2"    
+    command: bash -c "sleep 10 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client2"    
     # ./client <hosting port> <target container_name> <target port> <hosting name>
 
   client3.arclab.zju.edu.cn:
@@ -73,6 +73,51 @@ services:
       TLSNAME: TLS4
     networks: 
       - hangtian
-    command: bash -c "sleep 30 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client3"
+    command: bash -c "sleep 10 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client3"
+    # ./client <hosting port> <target container_name> <target port> <hosting name>
+
+  client4.arclab.zju.edu.cn:
+    build:
+      context: ./
+      dockerfile: Dockerfile2
+    #  image: hangtian:base
+    container_name: client4.arclab.zju.edu.cn
+    environment:
+      NODENAME: client4
+      ACCOUNTNAME: ACCOUNT5
+      TLSNAME: TLS5
+    networks: 
+      - hangtian
+    command: bash -c "sleep 10 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client4"
+    # ./client <hosting port> <target container_name> <target port> <hosting name>
+
+  client5.arclab.zju.edu.cn:
+    build:
+      context: ./
+      dockerfile: Dockerfile2
+    #  image: hangtian:base
+    container_name: client5.arclab.zju.edu.cn
+    environment:
+      NODENAME: client5
+      ACCOUNTNAME: ACCOUNT6
+      TLSNAME: TLS6
+    networks: 
+      - hangtian
+    command: bash -c "sleep 10 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client5"
+    # ./client <hosting port> <target container_name> <target port> <hosting name>
+
+  client6.arclab.zju.edu.cn:
+    build:
+      context: ./
+      dockerfile: Dockerfile2
+    #  image: hangtian:base
+    container_name: client6.arclab.zju.edu.cn
+    environment:
+      NODENAME: client6
+      ACCOUNTNAME: ACCOUNT7
+      TLSNAME: TLS7
+    networks: 
+      - hangtian
+    command: bash -c "sleep 10 ; /calt/build/client 20001 master.arclab.zju.edu.cn 20001 client6"
     # ./client <hosting port> <target container_name> <target port> <hosting name>
     

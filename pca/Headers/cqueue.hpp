@@ -24,6 +24,11 @@ class ConcurrentQueue
         _condition.notify_one();
     }
 
+    void front(Type &record)
+    {
+        record = std::move(_queue.front());
+    }
+
     bool Pop(Type &record, bool isBlocked = true)
     {
         if (isBlocked)

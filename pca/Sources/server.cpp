@@ -21,7 +21,6 @@
 #include "cmessage.hpp"
 
 #define PORT 7000
-#define FILEPORT 7001
 #define IP "127.0.0.1"
 #define MAXLINE 4096
 
@@ -32,7 +31,7 @@ typedef struct
 } CInstance;
 
 void getConn();
-void getConnFile();
+void getConnFile(int port);
 void fileProcess(int transType, int certType, int conn, int filefd);
 void receiveProcess();
 void handleRqProcess();
@@ -43,12 +42,13 @@ void sig_handler(int sig);
 // for easy mode ,we use single process
 //int sema = 1;
 int messageSock;
-int fileSock;
 struct sockaddr_in servaddr;
-struct sockaddr_in fileaddr;
 socklen_t len;
-socklen_t filelen;
+int Current_Port = 8000;
+//socklen_t filelen;
 
+map<int,int> conn_account;
+map<int,int> conn_tls;
 
 //debug
 int temp_count = 0;
@@ -99,6 +99,15 @@ void getConn()
         printf("start message listening thread at 7000\n");
         int conn = accept(messageSock, (struct sockaddr *)&servaddr, &len);
         li.push_back(conn);
+        //thread : getconnection from client
+        printf("current_port is %d", Current_Port);
+        CInstance ci;
+        ci.conn = conn;
+        ci.message = "#PORT" + to_string(Current_Port);
+        sq.Push(ci);
+        std::thread t0(getConnFile, Current_Port);
+        t0.detach();
+        Current_Port++;
         for (list<int>::iterator it = li.begin(); it != li.end(); ++it)
             cout << ' ' << *it << endl;
         printf("getConn: the connect fd is %d\n", conn);
@@ -116,21 +125,43 @@ void getConn()
     }
 }
 
-void getConnFile()
+void getConnFile(int port)
 {
+    int connfd = 0;
+    int conn = 0;
+    socklen_t filelen;
+    int byteNum;
+    int fileSock;
+    struct sockaddr_in fileaddr;
+    char buff[MAXLINE];
+    CInstance fqmessage;
+    //new file socket
+    fileSock = socket(AF_INET, SOCK_STREAM, 0);
+    memset(&fileaddr, 0, sizeof(fileaddr));
+    fileaddr.sin_family = AF_INET;
+    fileaddr.sin_port = htons(port);
+    fileaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    if (::bind(fileSock, (struct sockaddr *)&fileaddr, sizeof(fileaddr)) == -1)
+    {
+        perror("bind");
+        exit(1);
+    }
+    if (listen(fileSock, 20) == -1)
+    {
+        perror("listen");
+        exit(1);
+    }
+    filelen = sizeof(fileaddr);
+    //fqmessage.conn = conn;
     while (1)
     {
-        int connfd = 0;
-        int conn = 0;
-        int byteNum;
-        char buff[MAXLINE];
-        CInstance fqmessage;
-        //fqmessage.conn = conn;
-        printf("fileProcess: start file transfer listening at 7001\n");
+        printf("fileProcess: start file transfer listening at %d\n",port);
         if ((connfd = accept(fileSock, (struct sockaddr *)&fileaddr, &filelen)) == -1)
         {
             printf("accept socket error: %s(errno: %d)", strerror(errno), errno);
         }
+
+        
         //printf("fileProcess: get file connection from client, my conn is %d connfd is %d\n", connfd);
         fq.Pop(fqmessage);
         //according to fqmessage , decide which fileprocess will be used
@@ -138,6 +169,7 @@ void getConnFile()
         {
             //if single port tell main process to transport file
             //main process ready to receive csr file
+            conn_account.insert(std::pair<int,int>(fqmessage.conn,connfd));
             std::thread t4(fileProcess, 0, 0, fqmessage.conn, connfd);
             t4.detach();
             //send sign-ok message
@@ -145,6 +177,7 @@ void getConnFile()
         else if (fqmessage.message == ST)
         {
             //receive tls crs file
+            conn_tls.insert(std::pair<int,int>(fqmessage.conn,connfd));
             std::thread t4(fileProcess, 0, 1, fqmessage.conn, connfd);
             t4.detach();
         }
@@ -229,6 +262,7 @@ void receiveProcess()
                 {
                     if (errno != EINTR)
                     {
+                        // here we need to close file process at the same time.
                         //    sema++;
                         //std::lock_guard<std::mutex> lock(mtx);
                         close(*it);
@@ -411,7 +445,7 @@ void fileProcess(int transType, int certType, int conn, int filefd)
             CInstance hqmessage;
             hqmessage.conn = conn;
             //printf("fileProcess: start file transfer listening at 7001\n");
-            printf("fileProcess: get file connection from client, my conn is %d connfd is %d\n", conn, filefd);
+            printf("fileProcess: get file connection from client, certType is %d my conn is %d connfd is %d\n",certType, conn, filefd);
             //write file
             std::ofstream csrfile;
             if (certType == 0)
@@ -426,7 +460,14 @@ void fileProcess(int transType, int certType, int conn, int filefd)
             while (1)
             {
                 printf("xingweizheng zaici2\n");
-                byteNum = read(filefd, buff, MAXLINE);
+                if((certType == 0 && conn_account.find(conn)->second == filefd) || (certType == 1 && conn_tls.find(conn)->second == filefd))
+                    byteNum = read(filefd, buff, MAXLINE);
+                else
+                {
+                    usleep(200000);
+                    continue;
+                }   
+                
                 if (byteNum < 0)
                 {
                     printf("error happens conn %d connfd %d errno", conn, filefd, errno);
@@ -458,6 +499,30 @@ void fileProcess(int transType, int certType, int conn, int filefd)
                     return;
                 }
                 csrfile.write(buff, byteNum);
+                // out debug
+                map<int,int>::iterator it;
+                it = mCert->CertSerial.begin();
+                while(it != mCert->CertSerial.end()){
+                    printf("cert conn %d, cert seial %d\n",it->first,it->second);
+                    it++;
+                }
+                // two
+                map<int,int>::iterator it2;
+                it2 = conn_account.begin();
+                while(it2 != conn_account.end()){
+                    printf("account conn %d, connfd file %d\n",it2->first,it2->second);
+                    it2++;
+                }
+                // three
+                map<int,int>::iterator it3;
+                it3 = conn_tls.begin();
+                while(it3 != conn_tls.end()){
+                    printf("tls conn %d, connfd fle %d\n",it3->first,it3->second);
+                    it3++;
+                }
+                // four
+                printf("certType  %d my conn  %d connfd  %d\n",certType, conn, filefd);
+                printf("%d%d%d",certType,conn,filefd,buff);
             }
         }
     }
@@ -569,6 +634,10 @@ void sendProcess()
         {
             send(connfd, GRLR.c_str(), GRLR.length(), 0);
         }
+        else if (sqmessage.message.substr(0, 5) == "#PORT")
+        {
+            send(connfd, sqmessage.message.c_str(), sqmessage.message.length(), 0);
+        }
         else
         {
             printf("wrong send queue message");
@@ -598,30 +667,9 @@ int main()
     }
     len = sizeof(servaddr);
 
-    //new file socket
-    fileSock = socket(AF_INET, SOCK_STREAM, 0);
-    memset(&fileaddr, 0, sizeof(fileaddr));
-    fileaddr.sin_family = AF_INET;
-    fileaddr.sin_port = htons(FILEPORT);
-    fileaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    if (::bind(fileSock, (struct sockaddr *)&fileaddr, sizeof(fileaddr)) == -1)
-    {
-        perror("bind");
-        exit(1);
-    }
-    if (listen(fileSock, 20) == -1)
-    {
-        perror("listen");
-        exit(1);
-    }
-    len = sizeof(fileaddr);
-
     //thread : getconnection from client
     std::thread t(getConn);
     t.detach();
-    //thread : getconnection from client
-    std::thread t0(getConnFile);
-    t0.detach();
     printf("start get\n");
     //thread : send
     std::thread t1(sendProcess);

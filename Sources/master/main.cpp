@@ -57,13 +57,13 @@ int main(int argc, char* argv[]) {
     //sleep(25);
     //closesocket();
 
-    cout << "(1) " << nodeName << " setup CAServer Successful" << endl;
-    stage.Calc_Or(0x0001);
+    // cout << "(1) " << nodeName << " setup CAServer Successful" << endl;
+    // stage.Calc_Or(0x0001);
 
-    while((stage.Get() & 0x0001) != 0x0001) {
-        cout << "The Certificates is not ready, Waiting..." << endl;
-        sleep(1);
-    }
+    // while((stage.Get() & 0x0001) != 0x0001) {
+    //     cout << "The Certificates is not ready, Waiting..." << endl;
+    //     sleep(1);
+    // }
 
     while (true) {}
 
