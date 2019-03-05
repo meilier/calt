@@ -25,6 +25,10 @@
 
 
 int sock_cli;
+
+int account_csr_sock;
+int tls_csr_sock;
+
 fd_set rfds;
 struct timeval tv;
 int retval, maxfd;
@@ -141,6 +145,13 @@ void receiveProcess()
                     //get certs ready message from server
                     //connect to server to get it's certs.tar.gz
                     rq.Push(GRLR);
+                }else if(string(*it) == RAC)
+                {
+                    rq.Push(RAC);
+                }
+                else if(string(*it) == RTC)
+                {
+                    rq.Push(RTC);
                 }
             }
             memset(recvbuf, 0, sizeof(recvbuf));
@@ -211,6 +222,13 @@ void handleProcess()
             //connect to server to get it's certs.tar.gz
             std::thread t4(fileProcess, 1, 2);
             t4.detach();
+        }else if(rpmessage == RAC)
+        {
+            close(account_csr_sock);
+        }
+        else if(rpmessage == RTC)
+        {
+            close(tls_csr_sock);
         }
     }
 }
@@ -252,11 +270,13 @@ void fileProcess(int transType, int certType)
         {
             //open account pem file
             sfile.open(cCert->getCertFileName("csr", "account"), ios::out | ios::in);
+            account_csr_sock = file_cli;
         }
         else if (certType == 1)
         {
             //open tls pem file
             sfile.open(cCert->getCertFileName("csr", "tls"), ios::out | ios::in);
+            tls_csr_sock = file_cli;
         }
         while (!sfile.eof())
         {
@@ -267,7 +287,6 @@ void fileProcess(int transType, int certType)
         }
         printf("fileProcess: send csr successfully\n");
         //may be the bug is you need to close socket first
-        close(file_cli);
         sfile.close();
         //send file get ok message to handle process
         //may be here, client should send get pem file ok message, otherwise we send it again

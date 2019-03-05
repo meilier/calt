@@ -49,13 +49,13 @@ struct sockaddr_in fileaddr;
 socklen_t len;
 socklen_t filelen;
 
-
 //debug
 int temp_count = 0;
 int gacot = 0;
 int gtcot = 0;
 bool once = false;
 int oncetime = 0;
+int howmany = 0;
 
 std::list<int> li;
 Cert *mCert;
@@ -131,6 +131,8 @@ void getConnFile()
         {
             printf("accept socket error: %s(errno: %d)", strerror(errno), errno);
         }
+        howmany++;
+        printf("how many connections : %d fq size is : %d conn is %d\n",howmany,fq.Size(),connfd);
         //printf("fileProcess: get file connection from client, my conn is %d connfd is %d\n", connfd);
         fq.Pop(fqmessage);
         //according to fqmessage , decide which fileprocess will be used
@@ -145,6 +147,7 @@ void getConnFile()
         else if (fqmessage.message == ST)
         {
             //receive tls crs file
+
             std::thread t4(fileProcess, 0, 1, fqmessage.conn, connfd);
             t4.detach();
         }
@@ -434,12 +437,17 @@ void fileProcess(int transType, int certType, int conn, int filefd)
                 printf("fileProcess: why thead not return %d\n", byteNum);
                 if (byteNum == 0)
                 {
+                    //here send message to client : receive csr successfully
+                    CInstance sqmessage;
+                    sqmessage.conn = conn;
                     close(filefd);
                     csrfile.close();
 
                     //send file get ok message to handle process
                     if (certType == 0)
                     {
+                        sqmessage.message = RAC;
+                        sq.Push(sqmessage);
                         hqmessage.message = GACO;
                         gacot++;
                         hq.Push(hqmessage);
@@ -448,6 +456,8 @@ void fileProcess(int transType, int certType, int conn, int filefd)
                     }
                     else
                     {
+                        sqmessage.message = RTC;
+                        sq.Push(sqmessage);
                         hqmessage.message = GTCO;
                         gtcot++;
                         hq.Push(hqmessage);

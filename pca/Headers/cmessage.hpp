@@ -13,6 +13,8 @@ string GRL = "#get-revocation-list";
 string RC = "#revoke-cert";
 
 //sq
+string RAC = "#receive-account-csr";
+string RTC = "#receive-tls-csr";
 string SAR = "#sign-account-ready";
 string SAO = "#sign-account-ok";
 string STR = "#sign-tls-ready";
