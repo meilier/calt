@@ -108,6 +108,9 @@ void getConn()
         std::thread t0(getConnFile, conn, Current_Port);
         t0.detach();
         Current_Port++;
+        std::thread t00(getConnFile, conn, Current_Port);
+        t00.detach();
+        Current_Port++;
         for (list<int>::iterator it = li.begin(); it != li.end(); ++it)
             cout << ' ' << *it << endl;
         printf("getConn: the connect fd is %d\n", conn);
@@ -165,7 +168,8 @@ void getConnFile(int conn ,int port)
         while(1)
         {
             fq.front(fqmessage);
-            if(fqmessage.conn == conn)
+            if(fqmessage.conn == conn && (((port % 2 == 0) && (fqmessage.message == SA || fqmessage.message == GACO||fqmessage.message == GC)) \
+            || ((port % 2 == 1) && (fqmessage.message == ST||fqmessage.message == GTCO ))))
                 break;
             else
             {
@@ -280,6 +284,7 @@ void receiveProcess()
                         close(*it);
                         li.erase(it++);
                         mCert->deleteSerial(*it);
+                        //Current_Port = Current_Port - 2;
                         //cv.notify_one();
                         continue;
                     }
