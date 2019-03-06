@@ -143,7 +143,7 @@ void receiveProcess()
                     rq.Push(GRLR);
                 }else if (string(*it).substr(0,5) == "#PORT")
                 {
-                    file_port = atoi(string(*it).substr(5,4).c_str());
+                    file_port == atoi(string(*it).substr(5,4).c_str());
                     printf("client-port is %d",file_port);
                 }
             }
