@@ -66,8 +66,27 @@ void Cert::signCert(int conn, string certType)
 void Cert::getAllCerts()
 {
     //wait for an abstract
+    FILE *fp;
+    char buf[1024];
     string compactCmd = " tar -zcvf " + CAPATH + "/certs.tar.gz" + " -C " + CAPATH + " certs ";
-    popen(compactCmd.c_str(), "w");
+    if ((fp = popen(compactCmd.c_str(), "r")) == NULL)
+    {
+        printf("failed to popen");
+    }else{
+        printf("It's OK!\n");
+    }
+    fp == NULL ? printf("yes\n"):printf("no\n");
+    // while (fgets(buf, 200, fp) != NULL)
+    // {
+    //     printf("getAllCerts:%s\n", buf);
+    // }
+    //string res(buf);
+    pclose(fp);
+    printf("ready to notify send tar\n");
+    std::unique_lock<std::mutex> lock(my_mutex);
+    my_cv.notify_one();
+    
+    return;
 }
 
 /* **********
@@ -139,7 +158,7 @@ string Cert::getCertFileName(int conn, string fileType, string useType)
 string Cert::getCertOrgName(int conn, int certType)
 {
     //according to conn's csr serial numner to get its orgname
-    FILE *fp;
+    FILE *fp; 
     char buf[1024];
     string signCmd;
     string res = "";

@@ -1,5 +1,7 @@
 #ifdef __linux__
 #include <signal.h>
+#include <mutex>
+#include <condition_variable>
 #endif
 #include <sys/socket.h>
 #include <stdio.h>
@@ -45,6 +47,8 @@ int messageSock;
 struct sockaddr_in servaddr;
 socklen_t len;
 int Current_Port = 8000;
+
+int node = 0;
 //socklen_t filelen;
 
 map<int,int> conn_account;
@@ -79,6 +83,8 @@ static volatile int keepRunning = 1;
 //getConn mutex condition_variable for non-loop
 //mutex mtx;
 //condition_variable cv;
+mutex my_mutex;
+condition_variable my_cv;
 
 void sig_handler(int sig)
 {
@@ -391,7 +397,9 @@ void handleRqProcess()
         else if (rpmessage.message == GC)
         {
             //send certs.tar.gz to client
-            mCert->getAllCerts();
+            if(node != mCert->getSerial())
+                mCert->getAllCerts();
+            node = mCert->getSerial();
             sqmessage.message = GCR;
             sq.Push(sqmessage);
         }
@@ -565,8 +573,16 @@ void fileProcess(int transType, int certType, int conn, int filefd)
             }
             else if (certType == 2)
             {
-                //open tar.gz file
-                sfile.open(mCert->getCertFileName(conn, "compact"), ios::out | ios::in);
+                //open tar.gz file, waiting signal of compression
+                if(node != mCert->getSerial()){
+                    std::unique_lock<std::mutex> lock(my_mutex);
+                    my_cv.wait(lock);
+                    node = mCert->getSerial();
+                    sfile.open(mCert->getCertFileName(conn, "compact"), ios::out | ios::in);
+                }else{
+                    sfile.open(mCert->getCertFileName(conn, "compact"), ios::out | ios::in);
+                }
+
             }
             else if (certType == 3)
             {
