@@ -200,7 +200,6 @@ void getConnFile(int conn ,int port)
         else if (fqmessage.message == GC)
         {
             //send certs.tar.gz to client
-            mCert->getAllCerts();
             std::thread t4(fileProcess, 1, 2, fqmessage.conn, connfd);
             t4.detach();
         }
