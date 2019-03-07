@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     sleep(6);
     enqueueST();    //TLS证书生成
     enqueueSA();    //ACCOUNT证书生成
-    sleep(15);
+    sleep(25);
     enqueueGC();    //向CA请求获得
     //sleep(25);
     //closesocket();

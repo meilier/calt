@@ -111,11 +111,13 @@ string Cert::getCertFileName(int conn, string fileType, string useType)
     {
         if (useType == "account")
         {
-            returnmsg = nodeAccountCert + accountCert + to_string(CertSerial.find(conn)->second) + ".pem";
+            //returnmsg = nodeAccountCert + accountCert + to_string(CertSerial.find(conn)->second) + getCertOrgName(conn, 0) + ".pem";
+            returnmsg = nodeAccountCert + accountCert + getCertOrgName(conn, 0) + ".pem";
         }
         else
         {
-            returnmsg = nodetlsCert + tlsCert + to_string(CertSerial.find(conn)->second) + ".pem";
+            //returnmsg = nodetlsCert + tlsCert + to_string(CertSerial.find(conn)->second) + getCertOrgName(conn, 1) + ".pem";
+            returnmsg = nodetlsCert + tlsCert  + getCertOrgName(conn, 1) + ".pem";
         }
     }
     else if (fileType == "crl")
