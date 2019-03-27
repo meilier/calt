@@ -50,6 +50,7 @@ public:
   void signCert(int conn,string certType);
   void getAllCerts();
   void revokeCert(string conn);
+  bool needTar();
   string getCertOrgName(int conn, int certType);
 
   string getCertFileName(int conn , string fileType, string useType = "");

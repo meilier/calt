@@ -565,15 +565,15 @@ void fileProcess(int transType, int certType, int conn, int filefd)
             else if (certType == 2)
             {
                 //open tar.gz file
-                ifstream ftest(mCert->getCertFileName(conn, "compact"));
-                if(!ftest.good())
+                //ifstream ftest(mCert->getCertFileName(conn, "compact"));
+                if(mCert->needTar())
                 {
                     printf("sleep for a while\n");
                     sleep(5);
                 }else{
                     printf("no for a while\n");
                 }
-                ftest.close();
+                //ftest.close();
                 sfile.open(mCert->getCertFileName(conn, "compact"), ios::out | ios::in);
             }
             else if (certType == 3)

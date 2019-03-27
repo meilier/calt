@@ -84,6 +84,10 @@ void Cert::getAllCerts()
     popen(compactCmd.c_str(), "w");
 }
 
+bool Cert::needTar(){
+    return tarCertList != certList;
+}
+
 /* **********
  * revoke account and tls cert of one node
  */
