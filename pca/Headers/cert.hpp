@@ -49,8 +49,8 @@ public:
   void deleteSerial(int conn);
   void signCert(int conn,string certType);
   void getAllCerts();
-  void revokeCert(int conn);
+  void revokeCert(string conn);
   string getCertOrgName(int conn, int certType);
 
-  string getCertFileName(int conn, string fileType, string useType = "");
+  string getCertFileName(int conn , string fileType, string useType = "");
 };

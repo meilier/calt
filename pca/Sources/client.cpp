@@ -61,9 +61,9 @@ void enqueueGC()
 {
     sq.Push(GC);
 }
-void enqueueRC()
+void enqueueRC(string clientName)
 {
-    sq.Push(RC);
+    sq.Push(RC + clientName);
 }
 
 void receiveProcess()

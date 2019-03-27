@@ -87,20 +87,27 @@ void Cert::getAllCerts()
 /* **********
  * revoke account and tls cert of one node
  */
-void Cert::revokeCert(int conn)
+void Cert::revokeCert(string clientName)
 {
 
     //use ca private key get plaintext(tar.gz including node.pem),digest and node.signature
     //ca server use pem in plaintext to analysis the corresponding signature to make sure its deconding message equaling to digest
 
     //decoding message
-
-    string invokeAccountCmd = "openssl ca -config " + configPath + " -revoke " + getCertFileName(conn, "pem", "account") + " -key meilier";
-    string invokeTlsCmd = "openssl ca -config " + configPath + " -revoke " + getCertFileName(conn, "pem", "tls") + " -key meilier";
-    string genCrlCmd = "openssl ca -config " + configPath + " -gencrl -out" + getCertFileName(conn, "crl");
+    string dAccount = nodeAccountCert + accountCert + clientName + ".pem";
+    string dTls = nodeAccountCert + accountCert + clientName + ".pem";
+    string invokeAccountCmd = "openssl ca -config " + configPath + " -revoke " + dAccount + " -key 123456";
+    string invokeTlsCmd = "openssl ca -config " + configPath + " -revoke " + dTls + " -key 123456";
+    string genCrlCmd = "openssl ca -config " + configPath + " -gencrl -out" + getCertFileName(0, "crl");
     popen(invokeAccountCmd.c_str(), "w");
     popen(invokeTlsCmd.c_str(), "w");
     popen(genCrlCmd.c_str(), "w");
+
+    // delete pem file
+    string rmA = "rm " + dAccount;
+    string rmT = "rm " + dTls;
+    popen(rmA.c_str(), "w");
+    popen(rmT.c_str(), "w");
 }
 
 /* **********

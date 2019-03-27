@@ -50,5 +50,5 @@ void closesocket();
 void enqueueSA();
 void enqueueST();
 void enqueueGC();
-void enqueueRC();
+void enqueueRC(string clientName);
 

@@ -335,12 +335,12 @@ void receiveProcess()
                         // mCert->getAllCerts();
                         rq.Push(mCInstance);
                     }
-                    else if (string(*it) == RC.c_str())
+                    else if (string(*it).substr(0,12) == RC.c_str())
                     {
                         // transport all pem files
                         printf("start to transport pem files to nodes\n");
                         mCInstance.message = RC;
-                        // mCert->revokeCert();
+                        mCert->revokeCert(string(*it).substr(13));
                         rq.Push(mCInstance);
                     }
                     else
