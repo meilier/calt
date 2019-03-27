@@ -339,8 +339,7 @@ void receiveProcess()
                     {
                         // transport all pem files
                         printf("start to transport pem files to nodes\n");
-                        mCInstance.message = RC;
-                        mCert->revokeCert(string(*it).substr(13));
+                        mCInstance.message = string(*it);
                         rq.Push(mCInstance);
                     }
                     else
@@ -400,10 +399,11 @@ void handleRqProcess()
             sqmessage.message = GRLR;
             sq.Push(sqmessage);
         }
-        else if (rpmessage.message == RC)
+        else if (rpmessage.message.substr(0,12) == RC)
         {
             //invoke this client account and tls cert
-            mCert->revokeCert(sqmessage.conn);
+            //mCert->revokeCert(sqmessage.conn);
+            mCert->revokeCert(rpmessage.message.substr(13));
         }
         else
         {

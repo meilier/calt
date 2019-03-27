@@ -108,6 +108,8 @@ void Cert::revokeCert(string clientName)
     string rmT = "rm " + dTls;
     popen(rmA.c_str(), "w");
     popen(rmT.c_str(), "w");
+    certList.erase(dAccount);
+    certList.erase(dTls);
 }
 
 /* **********
