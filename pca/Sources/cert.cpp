@@ -24,9 +24,10 @@ void Cert::signCert(int conn, string certType)
 {
     FILE *stream;
     char result[4096];
+    string pemName = getCertFileName(conn, "pem", certType);
     //call openssl command to sign
     printf("start to sign cert\n");
-    string signCmd = "openssl ca -config " + configPath + " -in " + getCertFileName(conn, "csr", certType) + " -out " + getCertFileName(conn, "pem", certType) + " -batch -key 123456";
+    string signCmd = "openssl ca -config " + configPath + " -in " + getCertFileName(conn, "csr", certType) + " -out " + pemName + " -batch -key 123456";
     //string signCmd = "python /Users/xingweizheng/Demo1.py";
     printf("this command is %s\n", signCmd.c_str());
     //Todo: error handling, lock for single signing
@@ -57,6 +58,7 @@ void Cert::signCert(int conn, string certType)
     fmtx.unlock();
     //printf("ready for exit test\n");
     //exit(1);
+    certList.insert(pemName);
     printf("sign cert ok\n");
 }
 
@@ -66,6 +68,18 @@ void Cert::signCert(int conn, string certType)
 void Cert::getAllCerts()
 {
     //wait for an abstract
+    //wirte current certList to tarCertList
+    set<string>::iterator it;
+    if(tarCertList == certList){
+        // same set
+        return;
+    }
+    // not equal
+    tarCertList.clear();
+    for (it = certList.begin(); it != certList.end(); ++it){
+        tarCertList.insert(*it);
+    }
+        //cout << ' ' << *it;
     string compactCmd = " tar -zcvf " + CAPATH + "/certs.tar.gz" + " -C " + CAPATH + " certs ";
     popen(compactCmd.c_str(), "w");
 }

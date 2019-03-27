@@ -1,5 +1,6 @@
 #include "common.hpp"
 #include <map>
+#include <set>
 class Cert
 {
 private:
@@ -28,6 +29,10 @@ private:
   //filename
   const string accountCert = "accountCert";
   const string tlsCert = "tlsCert";
+
+  //certList
+  set<string> certList;
+  set<string> tarCertList;
 
 public:
   map<int, int> CertSerial;
